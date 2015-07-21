@@ -66,6 +66,11 @@ void AWall::SetWallEnd(FVector Location)
 	SetWallSize(WallStart, WallEnd);
 }
 
+FString AWall::GetOnClickMode()
+{
+	return TEXT("MOVE_ENDING");
+}
+
 float AWall::SetWallSize(FVector StartLocation, FVector EndLocation)
 {
 	WallSize = FVector::Dist(StartLocation, EndLocation);

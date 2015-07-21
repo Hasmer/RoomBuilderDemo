@@ -2,7 +2,7 @@
 
 #include "Demo.h"
 #include "MainPawn.h"
-#include "Wall.h"
+#include "WallCompound.h"
 
 // Sets default values
 AMainPawn::AMainPawn()
@@ -24,9 +24,10 @@ AMainPawn::AMainPawn()
 	Snapper->AttachTo(RootComponent);
 
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> Wall(TEXT("Blueprint'/Game/WallBP.WallBP'"));
-	WallBP = (UClass*)Wall.Object->GeneratedClass;
-	Walls = TArray<AWall*>();
+	static ConstructorHelpers::FObjectFinder<UBlueprint> WallCompound(TEXT("Blueprint'/Game/WallCompoundBP.WallCompoundBP'"));
+	WallCompoundBP = (UClass*)WallCompound.Object->GeneratedClass;
+	WallCompounds = TArray<AWallCompound*>();
+	Mode = TEXT("");
 }
 
 // Called when the game starts or when spawned
@@ -61,40 +62,54 @@ void AMainPawn::Tick( float DeltaTime )
 		}
 		else if (bClicking)
 		{
-			if (SelectedWall)
+			if (SelectedWallCompound)
 			{
 				FVector CursorLocation = SnapVector(HitResult.Location, 10.0f);
 				CursorLocation.Z = 0.0f;
+				SelectedWallCompound->MakeAction(CursorLocation);
+
+				/*
+				SelectedWallCompound->SetWallEndPosition(CursorLocation);
 				if (SelectedComponent == "WallEndingEnd")
 				{
-					SelectedWall->SetWallEnd(CursorLocation);
-					int SelectedIndex = Walls.Find(SelectedWall);
+					//SelectedWallCompound->SetWallEnd(CursorLocation);
+					int SelectedIndex = WallCompounds.Find(SelectedWallCompound);
 					if (SelectedIndex != INDEX_NONE)
 					{
-						if (SelectedIndex < Walls.Num() - 1)
+						if (SelectedIndex < WallCompounds.Num() - 1)
 						{
-							AWall* ConnectedWall = Walls[SelectedIndex + 1];
-							ConnectedWall->SetWallStart(CursorLocation);
+							AWallCompound* ConnectedWall = WallCompounds[SelectedIndex + 1];
+							//ConnectedWall->SetWallStart(CursorLocation);
 						}
 					}
 				}
 				else if (SelectedComponent == "WallEndingStart")
 				{
-					SelectedWall->SetWallStart(CursorLocation);
-					int SelectedIndex = Walls.Find(SelectedWall);
+					//SelectedWallCompound->SetWallStart(CursorLocation);
+					int SelectedIndex = WallCompounds.Find(SelectedWallCompound);
 					if (SelectedIndex != INDEX_NONE)
 					{
 						if (SelectedIndex > 0)
 						{
-							AWall* ConnectedWall = Walls[SelectedIndex - 1];
-							ConnectedWall->SetWallEnd(CursorLocation);
+							AWallCompound* ConnectedWall = WallCompounds[SelectedIndex - 1];
+							//ConnectedWall->SetWallEnd(CursorLocation);
 						}
 					}
 				}
+				*/
 			}
 		}
 		else
 		{
+			if (SelectedWallCompound)
+			{
+				if (Mode == "BUILD")
+				{
+					FVector CursorLocation = SnapVector(HitResult.Location, 10.0f);
+					CursorLocation.Z = 0.0f;
+					SelectedWallCompound->SetWallEndPosition(CursorLocation);
+				}
+			}
 			FString log = HitResult.Location.ToCompactString();
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, log);
 
@@ -209,29 +224,58 @@ void AMainPawn::OnClickStart()
 
 	if (TheActor)
 	{
-		FString log = TheActor->GetClass()->GetName();
-		if (log == TEXT("WallBP_C"))
+		FString ActorName = TheActor->GetClass()->GetName();
+		FVector StartingLocation = FVector::ZeroVector;
+		FVector Location = HitResult.Location;
+		Location = SnapVector(Location, 10.0f);
+		Location.Z = 0.0f;
+		if (Mode == "")
 		{
-			SelectedWall = (AWall*)TheActor;
-			UPrimitiveComponent* TheComponent = HitResult.GetComponent();
-			if (TheComponent)
+			SelectedWallCompound = GetWallCompound(TheActor);
+			if (SelectedWallCompound)
 			{
-				SelectedComponent = TheComponent->GetName();
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "Wall Compound FOUND!!!");
+				SelectedWallCompound->DelegateAction(HitResult, Location);
+				Mode = SelectedWallCompound->GetMode();
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("New mode is now " + Mode));
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("NO COMPOUND! Creating one..."));
+				AWallCompound* WallCompound = (AWallCompound*)GetWorld()->SpawnActor(WallCompoundBP, &StartingLocation);
+				SelectedWallCompound = WallCompound;
+				WallCompounds.Push(SelectedWallCompound);
+				Mode = TEXT("BUILD");
 			}
 		}
-		else
+
+		if (Mode == "BUILD")
 		{
-			FVector Loc = HitResult.Location;
-			Loc = SnapVector(Loc, 10.0f);
-			Loc.Z = 0.0f;
-			AWall* MyWall = (AWall*)GetWorld()->SpawnActor(WallBP, &Loc);
-			MyWall->SetWallStart(Loc);
-			MyWall->SetWallEnd(Loc);
-			Walls.Push(MyWall);
-			SelectedWall = MyWall;
-			SelectedComponent = TEXT("WallEndingEnd");
-			//MyWall->WallComponent->SetMaterial()
+			SelectedWallCompound->CreateWall(Location);
+			if (SelectedWallCompound->IsCompoundClosed())
+			{
+				SelectedWallCompound = NULL;
+				Mode = TEXT("");
+			}
 		}
+
+
+		//SelectedComponent = TEXT("WallEndingEnd");
+		//MyWall->WallComponent->SetMaterial()
+
+		//FString log = TheActor->GetClass()->GetName();
+		//if (log == TEXT("WallBP_C"))
+		//{
+		//	SelectedWallCompound = (AWallCompound*)TheActor;
+		//	UPrimitiveComponent* TheComponent = HitResult.GetComponent();
+		//	if (TheComponent)
+		//	{
+		//		SelectedComponent = TheComponent->GetName();
+		//	}
+		//}
+		//else
+		//{
+		//}
 	}
 
 
@@ -243,7 +287,10 @@ void AMainPawn::OnClickStart()
 void AMainPawn::OnClickEnd()
 {
 	bClicking = false;
-	SelectedWall = NULL;
+	if (Mode != "BUILD")
+	{
+		Mode = "";
+	}
 }
 
 // Action1
@@ -260,12 +307,12 @@ void AMainPawn::Action1()
 		log += TheActor->GetClass()->GetName();
 		if (log == TEXT("WallBP_C"))
 		{
-			SelectedWall = (AWall*)TheActor;
+			SelectedWallCompound = (AWallCompound*)TheActor;
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, log);
 
 
 
-			SelectedWall = NULL;
+			SelectedWallCompound = NULL;
 		}
 	}
 
@@ -294,4 +341,20 @@ FVector AMainPawn::SnapVector(FVector Vector, FVector Snap = FVector(10.0f, 10.0
 	SnappedVector.Y = FMath::GridSnap(Vector.Y, Snap.Y);
 	SnappedVector.Z = FMath::GridSnap(Vector.Z, Snap.Z);
 	return SnappedVector;
+}
+
+AWallCompound* AMainPawn::GetWallCompound(AActor* Actor)
+{
+	FString ActorClass;
+	while (Actor)
+	{
+		ActorClass = Actor->GetClass()->GetName();
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "GettingWallCompound..." + ActorClass);
+		if (ActorClass == "WallCompoundBP_C")
+		{
+			return (AWallCompound*)Actor;
+		}
+		Actor = Actor->GetAttachParentActor();
+	}
+	return NULL;
 }

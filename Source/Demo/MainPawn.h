@@ -4,7 +4,7 @@
 
 #include "GameFramework/Pawn.h"
 #include "MainPawn.generated.h"
-class AWall;
+class AWallCompound;
 
 UCLASS()
 class DEMO_API AMainPawn : public APawn
@@ -71,9 +71,13 @@ public:
 	FVector SnapVector(FVector Vector, float Snap);
 	FVector SnapVector(FVector Vector, FVector Snap);
 
-	TSubclassOf<AWall> WallBP;
-	AWall* SelectedWall;
+	TSubclassOf<AWallCompound> WallCompoundBP;
+	AWallCompound* SelectedWallCompound;
 private:
-	TArray<AWall*> Walls;
+	TArray<AWallCompound*> WallCompounds;
 	FString SelectedComponent;
+
+	FString Mode;
+
+	AWallCompound* GetWallCompound(AActor* Actor);
 };
