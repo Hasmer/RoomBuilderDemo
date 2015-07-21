@@ -18,10 +18,6 @@ AWallSection::AWallSection()
 	if (MatFinder.Succeeded())
 	{
 		Material = MatFinder.Object;
-		//WallMaterial = UMaterialInstanceDynamic::Create(Material, this);
-		//WallMaterial->SetScalarParameterValue("TextureUParam", 1.0f);
-		//WallMaterial->SetScalarParameterValue("TextureVParam", 1.0f);
-		//WallComponent->SetMaterial(0, WallMaterial);
 	}
 
 }
@@ -30,15 +26,6 @@ AWallSection::AWallSection()
 void AWallSection::BeginPlay()
 {
 	Super::BeginPlay();
-	//static ConstructorHelpers::FObjectFinder<UMaterial> MatFinder(TEXT("Material'/Game/Wall1.Wall1'"));
-	//if (MatFinder.Succeeded())
-	//{
-	//	UMaterial* Material = MatFinder.Object;
-	//	WallMaterial = UMaterialInstanceDynamic::Create(Material, this);
-		//WallMaterial->SetScalarParameterValue("TextureUParam", 1.0f);
-		//WallMaterial->SetScalarParameterValue("TextureVParam", 1.0f);
-		//WallComponent->SetMaterial(0, WallMaterial);
-	//}
 	if (Material)
 	{
 		WallMaterial = UMaterialInstanceDynamic::Create(Material, this);
@@ -106,13 +93,8 @@ void AWallSection::UpdateSize()
 	Scale.Z = Height / ModelSizeInMilimeters;
 	WallComponent->SetRelativeScale3D(Scale);
 
-	//WallMaterial->SetScalarParameterValue("TextureUParam", 3.0f);
-	//WallMaterial->SetScalarParameterValue("TextureVParam", Height);
-	
 	WallMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	WallMaterial->SetScalarParameterValue("TextureUParam", Size/100.0f);
 	WallMaterial->SetScalarParameterValue("TextureVParam", Height/100.0f);
 	WallComponent->SetMaterial(0, WallMaterial);
-
-
 }
