@@ -34,11 +34,16 @@ public:
 	float GetThickness();
 	void SetThickness(float Thickness);
 
+	FString GetOnClickMode();
+
+	void SetWallMaterial(UMaterialInstanceDynamic* WallMaterial);
+
 private:
 	float Size = 10.0f;
 	float Height = 50.0f;
 	float Thickness = 10.0f;
 	void UpdateSize();
-	
+	UMaterial* Material;
+	UMaterialInstanceDynamic* WallMaterial;
 	
 };

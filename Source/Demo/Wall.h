@@ -47,6 +47,8 @@ public:
 
 	UMaterialInstanceDynamic* MatDyn;
 
+	FString GetOnClickMode();
+
 private:
 	float WallSize;
 	float SetWallSize(FVector StartLocation, FVector EndLocation);
