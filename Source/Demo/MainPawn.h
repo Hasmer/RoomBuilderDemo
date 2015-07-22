@@ -74,24 +74,10 @@ public:
 	TSubclassOf<AWallCompound> WallCompoundBP;
 	AWallCompound* SelectedWallCompound;
 
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<UUserWidget> WidgetTemplate;
-
-	//UPROPERTY(EditAnywhere)
-	//UUserWidget* WidgetInstance;
-
-	// The class that will be used for the players Inventory UI
-	UPROPERTY(EditAnywhere, Category = "Player, HUD and UI")
-		TSubclassOf<class UMainUserWidget> InventoryUIClass;
-
-	// The instance of the players Inventory UI Widget
-	UPROPERTY(EditAnywhere, Category = "Player, HUD and UI")
-	class UMainUserWidget* InventoryWidget;
-
-	UFUNCTION(BlueprintCallable, Category = "SunShine")
+	UFUNCTION(BlueprintCallable, Category = "MainPawn")
 	void SetMode(FString Mode);
 
-	UFUNCTION(BlueprintCallable, Category = "SunShine")
+	UFUNCTION(BlueprintCallable, Category = "MainPawn")
 	void EnableSnapping(bool bSnapping);
 
 private:

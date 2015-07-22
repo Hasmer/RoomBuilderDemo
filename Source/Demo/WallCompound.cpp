@@ -67,7 +67,7 @@ FVector AWallCompound::SetWallEndProjection(FVector Location)
 	for (int i = 0; i < Walls.Num(); i++)
 	{
 		FVector WallStartLocation = Walls[i]->GetWallStartLocation();
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "Wall " + FString::FromInt(i) + ": " + WallStartLocation.ToCompactString());
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "Wall " + FString::FromInt(i) + ": " + WallStartLocation.ToCompactString());
 		if (FVector::Dist(Location, WallStartLocation) <= 10.0f)
 		{
 			SelectedWall->SetWallEnd(WallStartLocation);
