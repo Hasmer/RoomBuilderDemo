@@ -19,6 +19,7 @@ AMainPawn::AMainPawn()
 	ViewerCamera->AttachTo(RootComponent);
 	ViewerCamera->SetRelativeLocation(CameraLocation);
 	ViewerCamera->SetRelativeRotation(CameraRotation);
+	ViewerCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 
 	Snapper = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Snapper"));
 	Snapper->AttachTo(RootComponent);
@@ -107,7 +108,7 @@ void AMainPawn::Tick( float DeltaTime )
 				{
 					FVector CursorLocation = SnapVector(HitResult.Location, 10.0f);
 					CursorLocation.Z = 0.0f;
-					SelectedWallCompound->SetWallEndPosition(CursorLocation);
+					SelectedWallCompound->SetWallEndProjection(CursorLocation);
 				}
 			}
 			FString log = HitResult.Location.ToCompactString();
@@ -204,12 +205,14 @@ void AMainPawn::StopPan()
 void AMainPawn::CameraZoomIn()
 {
 	ViewerCamera->AddRelativeLocation(FVector(0.0f, 0.0f, -5.0f));
+	ViewerCamera->OrthoWidth -= ViewerCamera->OrthoWidth / 10.0f;
 }
 
 // Camera Zoom Out
 void AMainPawn::CameraZoomOut()
 {
 	ViewerCamera->AddRelativeLocation(FVector(0.0f, 0.0f, 5.0f));
+	ViewerCamera->OrthoWidth += ViewerCamera->OrthoWidth / 10.0f;
 }
 
 // Begin Click
@@ -251,7 +254,7 @@ void AMainPawn::OnClickStart()
 
 		if (Mode == "BUILD")
 		{
-			SelectedWallCompound->CreateWall(Location);
+			SelectedWallCompound->CreateWall(SelectedWallCompound->SetWallEndProjection(Location));
 			if (SelectedWallCompound->IsCompoundClosed())
 			{
 				SelectedWallCompound = NULL;
@@ -326,22 +329,42 @@ void AMainPawn::Action1()
 // Snap vector to grid
 FVector AMainPawn::SnapVector(FVector Vector, float Snap = 10.0f)
 {
-	FVector SnappedVector = FVector();
-	SnappedVector.X = FMath::GridSnap(Vector.X, Snap);
-	SnappedVector.Y = FMath::GridSnap(Vector.Y, Snap);
-	SnappedVector.Z = FMath::GridSnap(Vector.Z, Snap);
-	return SnappedVector;
+	if (bSnapping)
+	{
+		FVector SnappedVector = FVector();
+		SnappedVector.X = FMath::GridSnap(Vector.X, Snap);
+		SnappedVector.Y = FMath::GridSnap(Vector.Y, Snap);
+		SnappedVector.Z = FMath::GridSnap(Vector.Z, Snap);
+		return SnappedVector;
+	}
+	return Vector;
 }
 
 // Snap Vector to grid
 FVector AMainPawn::SnapVector(FVector Vector, FVector Snap = FVector(10.0f, 10.0f, 10.0f))
 {
-	FVector SnappedVector = FVector();
-	SnappedVector.X = FMath::GridSnap(Vector.X, Snap.X);
-	SnappedVector.Y = FMath::GridSnap(Vector.Y, Snap.Y);
-	SnappedVector.Z = FMath::GridSnap(Vector.Z, Snap.Z);
-	return SnappedVector;
+	if (bSnapping)
+	{
+		FVector SnappedVector = FVector();
+		SnappedVector.X = FMath::GridSnap(Vector.X, Snap.X);
+		SnappedVector.Y = FMath::GridSnap(Vector.Y, Snap.Y);
+		SnappedVector.Z = FMath::GridSnap(Vector.Z, Snap.Z);
+		return SnappedVector;
+	}
+	return Vector;
 }
+
+void AMainPawn::SetMode(FString Mode)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "SetMode is called: " + Mode);
+}
+
+void AMainPawn::EnableSnapping(bool bSnapping)
+{
+	this->bSnapping = bSnapping;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "SetMode is called: " + Mode);
+}
+
 
 AWallCompound* AMainPawn::GetWallCompound(AActor* Actor)
 {

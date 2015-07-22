@@ -73,11 +73,19 @@ public:
 
 	TSubclassOf<AWallCompound> WallCompoundBP;
 	AWallCompound* SelectedWallCompound;
+
+	UFUNCTION(BlueprintCallable, Category = "MainPawn")
+	void SetMode(FString Mode);
+
+	UFUNCTION(BlueprintCallable, Category = "MainPawn")
+	void EnableSnapping(bool bSnapping);
+
 private:
 	TArray<AWallCompound*> WallCompounds;
 	FString SelectedComponent;
 
 	FString Mode;
+	bool bSnapping;
 
 	AWallCompound* GetWallCompound(AActor* Actor);
 };

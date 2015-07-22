@@ -71,6 +71,16 @@ FString AWall::GetOnClickMode()
 	return TEXT("MOVE_ENDING");
 }
 
+FVector AWall::GetWallStartLocation()
+{
+	return WallEndingStart->GetComponentLocation();
+}
+
+FVector AWall::GetWallEndLocation()
+{
+	return WallEndingEnd->GetComponentLocation();
+}
+
 float AWall::SetWallSize(FVector StartLocation, FVector EndLocation)
 {
 	WallSize = FVector::Dist(StartLocation, EndLocation);

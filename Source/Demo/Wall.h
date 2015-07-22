@@ -49,6 +49,9 @@ public:
 
 	FString GetOnClickMode();
 
+	FVector GetWallStartLocation();
+	FVector GetWallEndLocation();
+
 private:
 	float WallSize;
 	float SetWallSize(FVector StartLocation, FVector EndLocation);
