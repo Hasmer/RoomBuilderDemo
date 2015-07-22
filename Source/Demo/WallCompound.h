@@ -27,6 +27,7 @@ public:
 	void CreateWall(FVector Location);
 	void SetWallEndPosition(FVector Location);
 	void SetWallStartPosition(FVector Location);
+	FVector SetWallEndProjection(FVector Location);
 	bool IsCompoundClosed();
 
 	FString GetMode();

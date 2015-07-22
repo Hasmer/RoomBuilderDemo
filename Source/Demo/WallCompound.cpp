@@ -62,6 +62,25 @@ void AWallCompound::SetWallStartPosition(FVector Location)
 	}
 }
 
+FVector AWallCompound::SetWallEndProjection(FVector Location)
+{
+	for (int i = 0; i < Walls.Num(); i++)
+	{
+		FVector WallStartLocation = Walls[i]->GetWallStartLocation();
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "Wall " + FString::FromInt(i) + ": " + WallStartLocation.ToCompactString());
+		if (FVector::Dist(Location, WallStartLocation) <= 10.0f)
+		{
+			SelectedWall->SetWallEnd(WallStartLocation);
+			return WallStartLocation;
+		}
+	}
+	if (SelectedWall)
+	{
+		SelectedWall->SetWallEnd(Location);
+	}
+	return Location;
+}
+
 bool AWallCompound::IsCompoundClosed()
 {
 	int32 WallsCount = Walls.Num();
@@ -71,7 +90,8 @@ bool AWallCompound::IsCompoundClosed()
 	}
 	AWall* FirstWall = Walls[0];
 	AWall* LastWall = Walls[WallsCount - 1];
-	return FirstWall->WallStart == LastWall->WallEnd;
+	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, "====Start: " + FirstWall->WallStart.ToCompactString() + "; End: " + LastWall->WallEnd.ToCompactString() + " ====" + (FirstWall->WallStart == LastWall->WallEnd ? "EQUAL" : "NON EQUAL"));
+	return FirstWall->WallStart.Equals(LastWall->WallEnd, 0.01f);
 }
 
 FString AWallCompound::GetMode()
