@@ -254,7 +254,7 @@ void AMainPawn::OnClickStart()
 
 		if (Mode == "BUILD")
 		{
-			SelectedWallCompound->CreateWall(SelectedWallCompound->SetWallEndProjection(Location));
+			SelectedWallCompound->CreateWall(SelectedWallCompound->SetWallEndProjection(Location), Height, Thickness);
 			if (SelectedWallCompound->IsCompoundClosed())
 			{
 				SelectedWallCompound = NULL;
@@ -354,10 +354,46 @@ FVector AMainPawn::SnapVector(FVector Vector, FVector Snap = FVector(10.0f, 10.0
 	return Vector;
 }
 
-void AMainPawn::SetMode(FString Mode)
+bool AMainPawn::SetMode(FString Mode)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "SetMode is called: " + Mode);
+	if (Mode != "")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
+
+bool AMainPawn::SetCameraMode(bool bPerspective)
+{
+	FRotator Rotator = ViewerCamera->GetComponentRotation();
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, "Camera Rotator " + Rotator.ToCompactString());
+	if (bPerspective)
+	{
+		if (WallCompounds.Num() > 0 && !SelectedWallCompound)
+		{
+			bCameraPerspective = bPerspective;
+			FVector Location;
+			FRotator Rotator;
+			WallCompounds[0]->GetParamsForPerspectiveCamera(Location, Rotator);
+			ViewerCamera->SetRelativeLocationAndRotation(Location, Rotator);
+			ViewerCamera->ProjectionMode = ECameraProjectionMode::Perspective;
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "ERROR: Can not switch camera mode");
+		}
+	}
+	else
+	{
+		bCameraPerspective = bPerspective;
+	}
+	return bCameraPerspective;
+}
+
 
 void AMainPawn::EnableSnapping(bool bSnapping)
 {

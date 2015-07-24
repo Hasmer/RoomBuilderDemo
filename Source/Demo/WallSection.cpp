@@ -61,7 +61,9 @@ float AWallSection::GetHeight()
 void AWallSection::SetHeight(float Height)
 {
 	this->Height = Height;
-	UpdateSize();
+	FVector Scale = WallComponent->GetComponentScale();
+	Scale.Z = Height / ModelSizeInMilimeters;
+	WallComponent->SetRelativeScale3D(Scale);
 }
 
 float AWallSection::GetThickness()
@@ -72,7 +74,9 @@ float AWallSection::GetThickness()
 void AWallSection::SetThickness(float Thickness)
 {
 	this->Thickness = Thickness;
-	UpdateSize();
+	FVector Scale = WallComponent->GetComponentScale();
+	Scale.X = Thickness / ModelSizeInMilimeters;
+	WallComponent->SetRelativeScale3D(Scale);
 }
 
 FString AWallSection::GetOnClickMode()
@@ -88,9 +92,7 @@ void AWallSection::SetWallMaterial(UMaterialInstanceDynamic* WallMaterial)
 void AWallSection::UpdateSize()
 {
 	FVector Scale = WallComponent->GetComponentScale();
-	Scale.X = Thickness / ModelSizeInMilimeters;
 	Scale.Y = Size / ModelSizeInMilimeters;
-	Scale.Z = Height / ModelSizeInMilimeters;
 	WallComponent->SetRelativeScale3D(Scale);
 
 	WallMaterial = UMaterialInstanceDynamic::Create(Material, this);

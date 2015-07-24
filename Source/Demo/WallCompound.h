@@ -24,7 +24,7 @@ public:
 	TSubclassOf<AWall> WallBP;
 	AWall* SelectedWall;
 
-	void CreateWall(FVector Location);
+	void CreateWall(FVector Location, float Height, float Thickness);
 	void SetWallEndPosition(FVector Location);
 	void SetWallStartPosition(FVector Location);
 	FVector SetWallEndProjection(FVector Location);
@@ -35,6 +35,8 @@ public:
 
 	void DelegateAction(FHitResult HitResult, FVector Location);
 	void MakeAction(FVector Location);
+
+	void GetParamsForPerspectiveCamera(FVector &Location, FRotator &Rotator);
 
 private:
 	TArray<AWall*> Walls;

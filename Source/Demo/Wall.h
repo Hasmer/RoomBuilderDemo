@@ -52,6 +52,8 @@ public:
 	FVector GetWallStartLocation();
 	FVector GetWallEndLocation();
 
+	void SetWallParams(float Height, float Thickness);
+
 private:
 	float WallSize;
 	float SetWallSize(FVector StartLocation, FVector EndLocation);

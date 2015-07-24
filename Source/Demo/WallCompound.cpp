@@ -29,18 +29,20 @@ void AWallCompound::Tick( float DeltaTime )
 
 }
 
-void AWallCompound::CreateWall(FVector Location)
+void AWallCompound::CreateWall(FVector Location, float Height, float Thickness)
 {
 	if (SelectedWall)
 	{
 		SelectedWall->SetWallEnd(Location);
 		if (IsCompoundClosed())
 		{
+			SelectedWall = NULL;
 			return;
 		}
 	}
 	SelectedWall = (AWall*)GetWorld()->SpawnActor(WallBP, &Location);
 	SelectedWall->AttachRootComponentToActor(this);
+	SelectedWall->SetWallParams(Height, Thickness);
 	SelectedWall->SetWallStart(Location);
 	SelectedWall->SetWallEnd(Location);
 	Walls.Push(SelectedWall);
@@ -151,6 +153,27 @@ void AWallCompound::MakeAction(FVector Location)
 		Walls[NextWallIndex]->SetWallStart(Location);
 	}
 }
+
+void AWallCompound::GetParamsForPerspectiveCamera(FVector &Location, FRotator &Rotator)
+{
+	FVector Start = Walls[0]->WallEndingStart->GetComponentLocation();
+	FVector First = Walls[0]->WallEndingEnd->GetComponentLocation() - Start;
+	FVector Last = Walls[Walls.Num() - 1]->WallEndingStart->GetComponentLocation() - Start;
+	FVector End = Start + (First + Last) / 2.0f;
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, "Start " + Start.ToCompactString());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, "First " + First.ToCompactString());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, "Last " + Last.ToCompactString());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, "End " + End.ToCompactString());
+
+	Rotator = FRotationMatrix::MakeFromZ(Start - End).Rotator();
+	Rotator.Roll = 0.0f;
+	Location = End;
+	Location.Z = 30.0f;
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, "Rotator " + Rotator.ToCompactString());
+	//CreateWall(Start);
+	//CreateWall(End);
+}
+
 
 AWall* AWallCompound::GetWall(FHitResult HitResult)
 {

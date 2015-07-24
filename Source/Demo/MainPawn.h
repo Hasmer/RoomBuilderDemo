@@ -75,17 +75,24 @@ public:
 	AWallCompound* SelectedWallCompound;
 
 	UFUNCTION(BlueprintCallable, Category = "MainPawn")
-	void SetMode(FString Mode);
+	bool SetMode(FString Mode);
 
 	UFUNCTION(BlueprintCallable, Category = "MainPawn")
 	void EnableSnapping(bool bSnapping);
 
+	UFUNCTION(BlueprintCallable, Category = "MainPawn")
+	bool SetCameraMode(bool bPerspective);
+
 private:
+	float Height = 300.0f;
+	float Thickness = 10.0f;
+
 	TArray<AWallCompound*> WallCompounds;
 	FString SelectedComponent;
 
 	FString Mode;
 	bool bSnapping;
+	bool bCameraPerspective = false;
 
 	AWallCompound* GetWallCompound(AActor* Actor);
 };

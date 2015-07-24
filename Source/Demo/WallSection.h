@@ -40,7 +40,7 @@ public:
 
 private:
 	float Size = 10.0f;
-	float Height = 50.0f;
+	float Height = 60.0f;
 	float Thickness = 10.0f;
 	void UpdateSize();
 	UMaterial* Material;

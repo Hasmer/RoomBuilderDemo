@@ -30,9 +30,6 @@ void AWall::BeginPlay()
 	FActorSpawnParameters SpawnParams = FActorSpawnParameters();
 	SpawnParams.Owner = this;
 	SelectedWallSection = (AWallSection*)GetWorld()->SpawnActor(WallSectionBP, &Loc, &Rot, SpawnParams);
-	SelectedWallSection->SetHeight(59.0f);
-	SelectedWallSection->SetSize(10.0f);
-	SelectedWallSection->SetThickness(10.0f);
 	SelectedWallSection->AttachRootComponentToActor(this);
 
 
@@ -79,6 +76,12 @@ FVector AWall::GetWallStartLocation()
 FVector AWall::GetWallEndLocation()
 {
 	return WallEndingEnd->GetComponentLocation();
+}
+
+void AWall::SetWallParams(float Height, float Thickness)
+{
+	SelectedWallSection->SetHeight(Height);
+	SelectedWallSection->SetThickness(Thickness);
 }
 
 float AWall::SetWallSize(FVector StartLocation, FVector EndLocation)
