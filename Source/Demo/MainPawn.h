@@ -32,6 +32,7 @@ public:
 
 	// Contains last mouse positions
 	FVector2D LastMousePosition;
+	FVector2D DeltaMousePosition;
 	FVector LastRayCast;
 
 	// Pointer to Player Controller
@@ -66,7 +67,6 @@ public:
 	FHitResult GetHitResult();
 	FHitResult LastHitResult;
 
-
 	// Utilities
 	FVector SnapVector(FVector Vector, float Snap);
 	FVector SnapVector(FVector Vector, FVector Snap);
@@ -82,6 +82,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MainPawn")
 	bool SetCameraMode(bool bPerspective);
+
+	void PanCamera(FVector Location);
+	void RotateCamera(FVector2D Position);
 
 private:
 	float Height = 300.0f;

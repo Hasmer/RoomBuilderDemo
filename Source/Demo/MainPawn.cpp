@@ -52,14 +52,14 @@ void AMainPawn::Tick( float DeltaTime )
 
 		if (bPanning)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Panning"));
-			FVector Delta = HitResult.Location - LastHitResult.Location;
-			Delta.Z = 0.0f;
-			FString log = Delta.ToCompactString();
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, log);
-			ViewerCamera->AddRelativeLocation(-Delta);
-			LastHitResult = GetHitResult();
-			LastHitResult.Location -= Delta;
+			if (bCameraPerspective)
+			{
+				RotateCamera(DeltaMousePosition);
+			}
+			else
+			{
+				PanCamera(HitResult.Location);
+			}
 		}
 		else if (bClicking)
 		{
@@ -144,6 +144,7 @@ bool AMainPawn::UpdateMousePosition(FVector2D NewMousePosition)
 {
 	if (!LastMousePosition.Equals(NewMousePosition, 0.001))
 	{
+		DeltaMousePosition = NewMousePosition - LastMousePosition;
 		LastMousePosition = NewMousePosition;
 		return true;
 	}
@@ -193,6 +194,7 @@ void AMainPawn::StartPan()
 {
 	bPanning = true;
 	LastHitResult = GetHitResult();
+	LastMousePosition = GetMousePosition();
 }
 
 // End panning
@@ -394,6 +396,28 @@ bool AMainPawn::SetCameraMode(bool bPerspective)
 	return bCameraPerspective;
 }
 
+void AMainPawn::PanCamera(FVector Location)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Panning"));
+	FVector Delta = Location - LastHitResult.Location;
+	Delta.Z = 0.0f;
+	FString log = Delta.ToCompactString();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, log);
+	ViewerCamera->AddRelativeLocation(-Delta);
+	LastHitResult = GetHitResult();
+	LastHitResult.Location -= Delta;
+}
+
+void AMainPawn::RotateCamera(FVector2D Delta)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Rotating"));
+	FString log = Delta.ToString();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, log);
+	FRotator CameraRotator = ViewerCamera->GetComponentRotation();
+	CameraRotator.Yaw += Delta.X;
+	CameraRotator.Pitch += -Delta.Y;
+	ViewerCamera->SetRelativeRotation(CameraRotator);
+}
 
 void AMainPawn::EnableSnapping(bool bSnapping)
 {
